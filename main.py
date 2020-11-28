@@ -2,6 +2,7 @@ import numpy as np
 import random
 import time
 import copy
+from game_gui import SimulationGUI
 
 class World:
 
@@ -86,7 +87,10 @@ class World:
 
 def main():
     world = World()
+    gui = SimulationGUI() # testing ... it works
     world.start_sim()
+
+
 
 
 

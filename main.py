@@ -1,9 +1,7 @@
 import numpy as np
 import random
 import time
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from matplotlib import animation
+import copy
 
 class World:
 
@@ -13,11 +11,15 @@ class World:
         self.earth = np.zeros((size,size))
         self.iteration = 0
         
+        self.neighbor_count = copy.deepcopy(self.earth) # useful for debugging neighbor count
+
         #test seeds
         self.earth[5,5] = 1
-        self.earth[5,6] = 1
         self.earth[6,5] = 1
-        self.earth[4,5] = 1
+        self.earth[7,5] = 1
+        # self.earth[4,4] = 1
+        # self.earth[4,6] = 1
+        # self.earth[4,3] = 1
 
         # self.earth[49,50] = 1
         # self.earth[51,51] = 1
@@ -25,26 +27,30 @@ class World:
         # self.earth[51,53] = 1
     
 
-    def worst_runtime_rules(self):
-        
+    #  defines rules for conway's game of life
+    def worst_runtime_rules(self):        
         index_range = range(self.dimension)
-        
-        new_world = self.earth
+        print("Earth")
+        print(self.earth)
+
+        new_world = copy.deepcopy(self.earth) #fixed array copying bug
 
         for row in index_range:
             for column in index_range:
+                num_of_neighbors = self._check_neighbors(row,column)
+                self.neighbor_count[row][column] = num_of_neighbors
                 if self.earth[row][column] != 0:
-                    if (self.check_neighbors(row,column) < 2) or (self.check_neighbors(row,column) > 3):
+                    if (num_of_neighbors < 2) or (num_of_neighbors > 3):
                         new_world[row][column] = 0
                 else:
-                    if self.check_neighbors(row,column) == 3:
+                    if num_of_neighbors == 3:
                         new_world[row][column] = 1
 
-        self.earth = new_world
+        self.earth = copy.deepcopy(new_world)
         self.iteration += 1
 
-    # probably a bad implementation
-    def check_neighbors(self, x, y):
+    # more so a private function to check neighbors used often
+    def _check_neighbors(self, x, y):
         # return int of how many neighbors are alive
         
         alive_neighbors = 0
@@ -54,7 +60,7 @@ class World:
         for dx in options:
             for dy in options:
                 try:
-                    if x != 0 and y != 0:
+                    if not (dx == 0 and dy == 0): # make sure that it doesn't count x,y (itself) as a neighbor 
                         if self.earth[x+dx][y+dy] != 0:
                             alive_neighbors += 1
                 except:
@@ -65,53 +71,18 @@ class World:
 
     # got stuck using matplotlib animation... use tkinter instead
     def start_sim(self,iterations=100):
-        # initializing
-        fig = plt.figure()
-        
-        image = list(self.earth)
-
-        new_image = []
-        for i in range(len(image)):
-            new_image.append([])
-            for k in range(len(image[i])):
-                if image[i][k] == 0:
-                    new_image[i].append([0, 0, 0])
-                else:
-                    new_image[i].append([255,255,255])
-        
-        im = plt.imshow(new_image)
-
-        def iter_function(i):
+        # initializing    
+        for i in range(iterations):
             self.worst_runtime_rules()
-
-            image = list(self.earth)
-
-            new_image = []
-            for i in range(len(image)):
-                new_image.append([])
-                for k in range(len(image[i])):
-                    if image[i][k] == 0:
-                        new_image[i].append([0, 0, 0])
-                    else:
-                        new_image[i].append([255,255,255])
-            
-            im.set_data(new_image)
-            return im
-
-
-            # imgplot = plt.imshow(image)
-            # plt.show()
-            # plt.close()
-            # time.sleep(0.5)
-        plt.show()
-        anim = animation.FuncAnimation(fig,iter_function, frames=5 * 5, interval=50)
+            # print("Earth")
+            # print(self.earth) # posts earth after modified so doesn't correspond with neighbor count array
+            print("Neighbor Count")
+            print(self.neighbor_count)
+            time.sleep(1)
         
-        
-        # for i in range(iterations):
-        #     self.worst_runtime_rules()
-        #     imgplot = plt.imshow(self.earth)
-        #     print(self.earth)
-        #     time.sleep(1)
+
+
+
 
 def main():
     world = World()

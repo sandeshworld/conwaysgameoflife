@@ -1,5 +1,6 @@
 # conwaysgameoflife
 Interactive GUI for Conway's Game of Life
+
 Simple and Fun Side Project
 
 
